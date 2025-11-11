@@ -23,9 +23,16 @@ module containerAppsEnvironment 'container-apps-environment.bicep' = {
   }
 }
 
+var targetContainerRegistryResourceGroupName = !empty(containerRegistryResourceGroupName) ? containerRegistryResourceGroupName : resourceGroup().name
+
+resource targetContainerRegistryResourceGroup 'Microsoft.Resources/resourceGroups@2022-09-01' existing = {
+  scope: subscription()
+  name: targetContainerRegistryResourceGroupName
+}
+
 module containerRegistry 'container-registry.bicep' = {
   name: '${name}-container-registry'
-  scope: !empty(containerRegistryResourceGroupName) ? resourceGroup(containerRegistryResourceGroupName) : resourceGroup()
+  scope: targetContainerRegistryResourceGroup
   params: {
     name: containerRegistryName
     location: location
